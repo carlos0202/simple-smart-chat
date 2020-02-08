@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Simple.Smart.Chat.App.Data;
+using Simple.Smart.Chat.App.Helpers;
 using Simple.Smart.Chat.App.Models;
 
 namespace Simple.Smart.Chat.App.Controllers
@@ -38,7 +39,7 @@ namespace Simple.Smart.Chat.App.Controllers
             var model = await _context.ChatMessages
                 .Include(m => m.ChatRoomUser)
                 .OrderByDescending(m => m.DateSent)
-                .Take(30)
+                .Take(50)
                 .OrderBy(m => m.DateSent)
                 .ToListAsync();
 
@@ -61,12 +62,20 @@ namespace Simple.Smart.Chat.App.Controllers
         {
             if (ModelState.IsValid)
             {
-                model.UserName = User.Identity.Name;
-                var user = await _userManager.GetUserAsync(User);
-                model.UserId = user.Id;
-                await _context.AddAsync(model);
-                await _context.SaveChangesAsync();
+                if (model.IsCommand())
+                {
+                    var command = model.GetCommand();
+                    //TODO send command to rabbitMQ
+                }
+                else
+                {
+                    model.UserName = User.Identity.Name;
+                    var user = await _userManager.GetUserAsync(User);
+                    model.UserId = user.Id;
+                    await _context.AddAsync(model);
+                    await _context.SaveChangesAsync();
 
+                }
                 return Ok();
             }
 
