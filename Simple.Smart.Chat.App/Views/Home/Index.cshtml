@@ -3,13 +3,17 @@
 @{
     var CurrentUser = ViewBag.DisplayName;
     var UserId = ViewBag.UserId;
+    ViewBag.Title = "ChatRoom";
 }
 
 <div class="card">
-    <div class="card-header">Public stakes chat room</div>
+    <div class="card-header">
+        <span class="float-left">Public stakes chat room</span>
+        <span class="float-right">Dear @CurrentUser, Chat here!!!</span>
+    </div>
     <div class="card-body">
-        <div class="jumbotron bg-light">
-            <h4 class="text-info">Dear @CurrentUser, Chat here!!!</h4>
+        <div class="bg-transparent">
+
             <input type="hidden" id="CurrentUser" value="@CurrentUser" />
             <div class="row">
                 <div class="col-12" id="ChatSpace">
@@ -24,13 +28,13 @@
 
                             if (User.Identity.Name == chatMessage.UserName)
                             {
-                                msgContainer = "container-fluid msg-holder bg-primary m-1 p-3";
+                                msgContainer = "container-fluid msg-holder border border-primary m-1 p-1";
                                 msgAlignPos = "text-right";
                                 msgSizePos = "col-11 offset-1";
                             }
                             else
                             {
-                                msgContainer = "container-fluid msg-holder bg-secondary m-1 p-3";
+                                msgContainer = "container-fluid msg-holder border border-secondary m-1 p-1";
                                 msgAlignPos = "text-left";
                                 msgSizePos = "col-11";
                             }

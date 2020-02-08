@@ -49,9 +49,10 @@ function addMessageToChat(sentMessage) {
         .attr('class', 'msg-from ' + textAlign)
         .html(sentMessage.userName + ' - ' + dateSent);
 
+    var stappleContainerClasses = "container-fluid msg-holder m-1 p-1 border border-";
     var $msgContainer = $('<div></div>')
-        .attr('class', fromCurrentUser
-            ? "container-fluid msg-holder bg-primary m-1 p-3" : "container-fluid msg-holder bg-secondary m-1 p-3")
+        .attr('class', stappleContainerClasses +  fromCurrentUser
+            ? "-primary" : "-secondary")
         .append($from)
         .append($textMsg);
 
