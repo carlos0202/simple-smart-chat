@@ -70,7 +70,7 @@ namespace Simple.Smart.Chat.App.Infrastructure.Bot
                     Message = msg
                 };
                 // Send message to all users in SignalR
-                chatHub.Clients.All.SendAsync("messageReceived", outMessage);
+                chatHub.Clients.All.SendAsync("receiveMessage", outMessage);
             };
 
             // Consume a RabbitMQ Queue

@@ -48,8 +48,7 @@ namespace Simple.Smart.Chat.CommandBot.Infrastructure.Bot
                 UserName = botSettings.UserName,
                 Password = botSettings.Password,
                 Port = botSettings.Port,
-                RequestedConnectionTimeout = botSettings.RequestedConnectionTimeout,
-                DispatchConsumersAsync = true
+                RequestedConnectionTimeout = botSettings.RequestedConnectionTimeout
             };
             _connection = _factory.CreateConnection();
             _channel = _connection.CreateModel();
@@ -62,7 +61,7 @@ namespace Simple.Smart.Chat.CommandBot.Infrastructure.Bot
             // Declare a RabbitMQ Queue
             _channel.QueueDeclare(queue: botSettings.InboundQueue, durable: false, exclusive: false, autoDelete: false);
 
-            var consumer = new AsyncEventingBasicConsumer(_channel);
+            var consumer = new EventingBasicConsumer(_channel);
 
             // When we receive a message from SignalR
             consumer.Received += Consumer_Received;
@@ -71,13 +70,14 @@ namespace Simple.Smart.Chat.CommandBot.Infrastructure.Bot
             _channel.BasicConsume(queue: botSettings.InboundQueue, autoAck: true, consumer: consumer);
         }
 
-        private async Task Consumer_Received(object model, BasicDeliverEventArgs ea)
+        private void Consumer_Received(object model, BasicDeliverEventArgs ea)
         {
             // Process Command received from chatroom
             var body = ea.Body;
             var command = Encoding.UTF8.GetString(body);
             _logger.LogInformation($"Worker received command {command} at: {DateTimeOffset.Now}");
-            var commandResult = await _commandProcessor.ProcessCommand(command);
+            var commandResult = _commandProcessor.ProcessCommand(command);
+            _logger.LogInformation($"Worker command result {commandResult} at: {DateTimeOffset.Now}");
             Send(commandResult);
         }
 

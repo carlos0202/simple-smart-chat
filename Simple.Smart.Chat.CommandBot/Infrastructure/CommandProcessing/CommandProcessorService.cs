@@ -1,11 +1,13 @@
 ﻿using CsvHelper;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Simple.Smart.Chat.CommandBot.Models;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,39 +16,46 @@ namespace Simple.Smart.Chat.CommandBot.Infrastructure.CommandProcessing
 {
     public interface ICommandProcessor
     {
-        Task<string> ProcessCommand(string command);
+        string ProcessCommand(string command);
     }
 
     public class CommandProcessorService : ICommandProcessor
     {
         private readonly IConfiguration _configuration;
+        private readonly ILogger<CommandProcessorService> _logger;
 
-        public CommandProcessorService(IConfiguration configuration)
+        public CommandProcessorService(
+            IConfiguration configuration,
+            ILogger<CommandProcessorService> logger)
         {
             _configuration = configuration;
+            _logger = logger;
         }
 
-        public async Task<string> ProcessCommand(string command)
+        public string ProcessCommand(string command)
         {
             try
             {
-                using (var client = new HttpClient())
-                {
-                    using (var result = await client.GetStreamAsync(_configuration.GetValue<string>("StockApiUrl")))
-                    {
-                        var reader = new StreamReader(result);
-                        using (var csvReader = new CsvReader(reader, CultureInfo.InvariantCulture))
-                        {
-                            var record = csvReader.GetRecords<StockResult>().FirstOrDefault();
-                            if (record != null && record.Close != "N/D")
-                            {
-                                return $"{command} quote is ${record.Close} per share";
-                            }
+                var url = $"{_configuration.GetValue<string>("StockApiUrl")}?s={command}&f=sd2t2ohlcv&h&e=csv";
+                _logger.LogInformation($"Get Command info using URL: {url}");
 
-                            return $"No results found for command /stock={command}";
-                        }
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                var result = response.GetResponseStream();
+                using var reader = new StreamReader(result);
+                using var csvReader = new CsvReader(reader, CultureInfo.InvariantCulture);
+                if (csvReader.Read())
+                {
+                    var record = csvReader.GetRecord<StockResult>();
+                    var rawRecord = csvReader.GetRecord<object>();
+                    _logger.LogInformation($"Result of Command : {rawRecord}");
+                    if (record != null && record.Close != "N/D")
+                    {
+                        return $"{command} quote is ${record.Close} per share";
                     }
                 }
+
+                return $"No results found for command /stock={command}";
             }
             catch (Exception ex)
             {
