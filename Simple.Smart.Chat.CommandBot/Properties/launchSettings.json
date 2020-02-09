@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "Simple.Smart.Chat.CommandBot": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

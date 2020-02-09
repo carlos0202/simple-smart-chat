@@ -19,5 +19,16 @@
     "dist/jquery.unobtrusive-ajax.min.js"
   ]
 }
+,
+{
+  "library": "@babel/standalone@7.8.4",
+  "destination": "wwwroot/lib/babel/standalone/"
+}
+,
+{
+  "provider": "cdnjs",
+  "library": "babel-polyfill@7.8.3",
+  "destination": "wwwroot/lib/babel-polyfill/"
+}
 ]
 }

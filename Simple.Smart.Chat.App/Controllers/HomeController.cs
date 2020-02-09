@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Simple.Smart.Chat.App.Data;
 using Simple.Smart.Chat.App.Helpers;
+using Simple.Smart.Chat.App.Infrastructure.Bot;
 using Simple.Smart.Chat.App.Models;
 
 namespace Simple.Smart.Chat.App.Controllers
@@ -20,15 +21,18 @@ namespace Simple.Smart.Chat.App.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly UserManager<ChatRoomUser> _userManager;
         private readonly ApplicationDbContext _context;
+        private readonly IRabbitMQService _mQService;
 
         public HomeController(
             ILogger<HomeController> logger, 
             UserManager<ChatRoomUser> userManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IRabbitMQService mQService)
         {
             _logger = logger;
             _userManager = userManager;
             _context = context;
+            _mQService = mQService;
         }
 
         public async Task<IActionResult> Index()
@@ -66,6 +70,7 @@ namespace Simple.Smart.Chat.App.Controllers
                 {
                     var command = model.GetCommand();
                     //TODO send command to rabbitMQ
+                    _mQService.Send(command);
                 }
                 else
                 {

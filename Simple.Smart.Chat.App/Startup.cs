@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Simple.Smart.Chat.App.Infrastructure.Hubs;
 using Simple.Smart.Chat.App.Models;
+using Simple.Smart.Chat.App.Infrastructure.Bot;
 
 namespace Simple.Smart.Chat.App
 {
@@ -37,10 +38,11 @@ namespace Simple.Smart.Chat.App
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddSignalR();
+            services.AddSingleton<IRabbitMQService, BotCommunicationService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime)
         {
             if (env.IsDevelopment())
             {
@@ -69,6 +71,15 @@ namespace Simple.Smart.Chat.App
                 endpoints.MapRazorPages();
                 endpoints.MapHub<ChatRoomHub>("/Home/Index");
             });
+
+            lifetime.ApplicationStarted.Register(() => RegisterBot(app.ApplicationServices));
+        }
+
+        public void RegisterBot(IServiceProvider serviceProvider)
+        {
+            // Connect to RabbitMQ
+            var rabbitMQService = (IRabbitMQService)serviceProvider.GetService(typeof(IRabbitMQService));
+            rabbitMQService.Connect();
         }
     }
 }

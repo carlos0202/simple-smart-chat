@@ -77,7 +77,9 @@
 @section Scripts {
     <script src="~/lib/jquery-ajax-unobtrusive/dist/jquery.unobtrusive-ajax.min.js"></script>
     <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
-    <script src="~/js/chatRoom.js" asp-append-version="true"></script>
-    <script src="~/js/signalRBootstraper.js"></script>
+    <script src="~/lib/babel-polyfill/polyfill.min.js" ></script>
+    <script src="~/lib/babel/standalone/babel.min.js"></script>
+    <script type="text/babel" src="~/js/chatRoom.js" asp-append-version="true"></script>
+    <script type="text/babel" src="~/js/signalRBootstraper.js"></script> 
 }
 

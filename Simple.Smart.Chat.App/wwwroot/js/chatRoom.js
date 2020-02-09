@@ -5,17 +5,11 @@ function ChatRoomMessage(userName, message) {
 }
 
 // global properties
-var $username = $('#CurrentUser');
-var $message = $('#Message');
-var $chatSpace = $('#ChatSpace');
-var messagesQueue = new Array();
+const $username = $('#CurrentUser');
+const $message = $('#Message');
+const $chatSpace = $('#ChatSpace');
+const messagesQueue = new Array();
 
-// Event listeners
-$('#sendMessgeBtn').on('click', function (e) {
-    //e.preventDefault();
-    console.log('Form submitted!!!');
-    //return false;
-});
 
 // Helper functions
 function clearMessageField() {
@@ -27,51 +21,43 @@ function sendMessage() {
     var text = messagesQueue.shift() || "";
     if (text.trim() === "") return;
 
-    var message = new ChatRoomMessage($username.val(), text);
-    console.log('Message sent: ', message);
+    let message = new ChatRoomMessage($username.val(), text);
+
     sendMessageToHub(message);
 }
 
 function addMessageToChat(sentMessage) {
-    console.log('Message to add to chat: ', sentMessage);
+    console.log(`Message to add to chat: ${sentMessage}`);
     var fromCurrentUser =
         sentMessage.userName === $username.val();
     var textAlign = fromCurrentUser ? 'text-right' : 'text-left';
     var currDate = getCurrDate();
+    var stappleContainerClasses = "container-fluid msg-holder m-1 p-1 border border";
+    let dateSent = `<span class="date-sent">${currDate}</span>`;
+    let msg = `
+        <div class="row">
+            <div class="${fromCurrentUser ? "col-11 offset-1" : "col-11"}">
+                <div class="${stappleContainerClasses}-${fromCurrentUser ? "primary" : "secondary"}">
+                    <p class="msg-from ${textAlign}">
+                        ${sentMessage.userName} - ${dateSent}
+                    </p>
+                    <p class="${textAlign}">${sentMessage.message}</p>
+                </div>
+            </div>
+        </div>
+    `;
 
-    let $textMsg = $('<p></p>')
-        .attr('class', textAlign)
-        .html(sentMessage.message);
-
-    let dateSent = '<span class="date-sent">' + currDate + '</span>';
-
-    let $from = $('<p></p>')
-        .attr('class', 'msg-from ' + textAlign)
-        .html(sentMessage.userName + ' - ' + dateSent);
-
-    var stappleContainerClasses = "container-fluid msg-holder m-1 p-1 border border-";
-    var $msgContainer = $('<div></div>')
-        .attr('class', stappleContainerClasses +  fromCurrentUser
-            ? "-primary" : "-secondary")
-        .append($from)
-        .append($textMsg);
-
-    var $colSize = $('<div></div>')
-        .attr('class', fromCurrentUser ? "col-11 offset-1" : "col-11")
-        .append($msgContainer);
-
-    var $row = $('<div class="row"></div>')
-        .append($colSize);
-
-    $chatSpace.append($row);
+    $chatSpace.append(msg);
     $chatSpace.scrollTop($chatSpace.prop("scrollHeight"));
 }
 
 function getCurrDate() {
-    var currentdate = new Date();
+    let currentdate = new Date();
 
-    return (currentdate.getMonth() + 1) + "/"
-        + currentdate.getDate() + "/"
-        + currentdate.getFullYear() + " "
-        + currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+    let am = currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+    let dateStr = `
+        ${currentdate.getMonth() + 1}/${currentdate.getDate()}/${currentdate.getFullYear()} ${am}
+    `;
+
+    return dateStr.trim();
 }
