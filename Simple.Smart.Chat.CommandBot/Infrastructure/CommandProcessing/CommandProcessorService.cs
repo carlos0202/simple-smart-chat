@@ -36,7 +36,7 @@ namespace Simple.Smart.Chat.CommandBot.Infrastructure.CommandProcessing
         {
             try
             {
-                var url = $"{_configuration.GetValue<string>("StockApiUrl")}?s={command}&f=sd2t2ohlcv&h&e=csv";
+                var url = $"{_configuration.GetValue<string>("StockApiUrl")}?s={command.ToLower()}&f=sd2t2ohlcv&h&e=csv";
                 _logger.LogInformation($"Get Command info using URL: {url}");
 
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);

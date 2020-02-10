@@ -27,7 +27,6 @@ function sendMessage() {
 }
 
 function addMessageToChat(sentMessage) {
-    console.log(`Message to add to chat: ${sentMessage}`);
     var fromCurrentUser =
         sentMessage.userName === $username.val();
     var textAlign = fromCurrentUser ? 'text-right' : 'text-left';
@@ -49,6 +48,7 @@ function addMessageToChat(sentMessage) {
 
     $chatSpace.append(msg);
     $chatSpace.scrollTop($chatSpace.prop("scrollHeight"));
+    scrollToLast(50); // keep only last 50 messages
 }
 
 function getCurrDate() {
@@ -60,4 +60,10 @@ function getCurrDate() {
     `;
 
     return dateStr.trim();
+}
+
+function scrollToLast(count) {
+    while ($('#ChatSpace').children('div.row').length > count) {
+        $('#ChatSpace div.row:first-child').remove();
+    }
 }
