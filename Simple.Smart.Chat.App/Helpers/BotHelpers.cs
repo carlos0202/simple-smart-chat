@@ -19,6 +19,11 @@ namespace Simple.Smart.Chat.App.Helpers
 
         public static string GetCommand(this ChatMessage chatMessage)
         {
+            if (!chatMessage.IsCommand())
+            {
+                return null;
+            }
+
             var match = Regex.Match(chatMessage.Message, commandPattern);
             if (match.Success)
             {
